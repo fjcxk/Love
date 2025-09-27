@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loooooooove</title>
+  <style>
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      text-align: center;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #f9f9f9, #e6f0ff);
+      overflow: hidden;
+    }
+
+    h2 {
+      font-size: 36px;
+      margin-bottom: 40px;
+      color: #333;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 40px;
+    }
+
+    button {
+      padding: 16px 36px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #ff6a88, #ff99ac);
+      color: white;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    /* 小爱心 */
+    .heart {
+      position: fixed;
+      bottom: 50px;
+      font-size: 24px;
+      color: red;
+      animation: floatUp 2s ease-out forwards;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-300px) scale(1.8);
+        opacity: 0;
+      }
+    }
+
+    /* 超大爱心 */
+    .big-heart {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 400px;  /* 这里改成超大尺寸 */
+      color: #ff4d6d;
+      opacity: 0;
+      animation: bigHeartPop 2s ease-out forwards;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes bigHeartPop {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+      40% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+      }
+      70% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2); /* 放大到全屏效果 */
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>喜不喜欢我 ?</h2>
+
+  <div class="buttons">
+    <button id="goodBtn">喜欢</button>
+    <button id="badBtn">不喜欢</button>
+  </div>
+
+  <script>
+    const goodBtn = document.getElementById('goodBtn');
+    const badBtn = document.getElementById('badBtn');
+    const buttonsDiv = document.querySelector('.buttons');
+
+    // 点击“不好” —— 每次点击都交换两个按钮的位置
+    badBtn.addEventListener('click', () => {
+      if (buttonsDiv.children.length >= 2) {
+        const [first, second] = buttonsDiv.children;
+        buttonsDiv.insertBefore(second, first);
+      }
+    });
+
+    // 点击“好” —— 小爱心 + 超大爱心
+    goodBtn.addEventListener('click', () => {
+      // 小爱心
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => createHeart(), i * 100);
+      }
+      // 超大爱心
+      createBigHeart();
+    });
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = '❤';
+
+      // 随机大小
+      const size = Math.random() * 20 + 20; 
+      heart.style.fontSize = size + 'px';
+
+      // 随机水平位置
+      heart.style.left = Math.random() * (window.innerWidth - 30) + 'px';
+
+      // 随机颜色
+      const colors = ['#ff4d6d', '#ff6a88', '#ff99ac', '#ffb3c6'];
+      heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 2000);
+    }
+
+    function createBigHeart() {
+      const bigHeart = document.createElement('div');
+      bigHeart.className = 'big-heart';
+      bigHeart.textContent = '❤';
+      document.body.appendChild(bigHeart);
+
+      setTimeout(() => {
+        bigHeart.remove();
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
