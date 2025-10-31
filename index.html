@@ -1,175 +1,355 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <title>Loooooooove</title>
-  <style>
-    body {
-      font-family: "Microsoft YaHei", sans-serif;
-      text-align: center;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #f9f9f9, #e6f0ff);
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<title>仿Windows彩色弹窗</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #f3f3f3;
+  }
 
-    h2 {
-      font-size: 36px;
-      margin-bottom: 40px;
-      color: #333;
-    }
+  .popup {
+    position: fixed;
+    width: 240px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+    overflow: hidden;
+    opacity: 0.95;
+    font-family: "Microsoft YaHei", sans-serif;
+    animation: fadeIn 0.4s ease;
+  }
 
-    .buttons {
-      display: flex;
-      gap: 40px;
-    }
+  /* 标题栏（上方白色条） */
+  .popup .titlebar {
+    background-color: #fff;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ccc;
+    padding: 0 5px;
+    cursor: move;
+  }
 
-    button {
-      padding: 16px 36px;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      border-radius: 30px;
-      background: linear-gradient(135deg, #ff6a88, #ff99ac);
-      color: white;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+  .popup .titlebar .title {
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
+  }
 
-    button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    }
+  /* 右上角按钮组 */
+  .popup .titlebar .window-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-    button:active {
-      transform: scale(0.95);
-    }
+  .window-buttons span {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
 
-    /* 小爱心 */
-    .heart {
-      position: fixed;
-      bottom: 50px;
-      font-size: 24px;
-      color: red;
-      animation: floatUp 2s ease-out forwards;
-      pointer-events: none;
-      opacity: 0.9;
-    }
+  .window-buttons span:hover {
+    background-color: #e0e0e0;
+  }
 
-    @keyframes floatUp {
-      0% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-300px) scale(1.8);
-        opacity: 0;
-      }
-    }
+  .window-buttons .close:hover {
+    background-color: #e81123;
+    color: white;
+  }
 
-    /* 超大爱心 */
-    .big-heart {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      font-size: 400px;  /* 这里改成超大尺寸 */
-      color: #ff4d6d;
-      opacity: 0;
-      animation: bigHeartPop 2s ease-out forwards;
-      pointer-events: none;
-      z-index: 999;
-    }
+  /* 内容部分 */
+  .popup .content {
+    padding: 20px 15px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+  }
 
-    @keyframes bigHeartPop {
-      0% {
-        transform: translate(-50%, -50%) scale(0);
-        opacity: 0;
-      }
-      40% {
-        transform: translate(-50%, -50%) scale(1.2);
-        opacity: 1;
-      }
-      70% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(2); /* 放大到全屏效果 */
-        opacity: 0;
-      }
-    }
-  </style>
+  @keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.8);}
+    to {opacity: 1; transform: scale(1);}
+  }
+</style>
 </head>
 <body>
-  <h2>喜不喜欢我 ?</h2>
 
-  <div class="buttons">
-    <button id="goodBtn">喜欢</button>
-    <button id="badBtn">不喜欢</button>
-  </div>
+<script>
+  const messages = [
+    "天天开心！",
+    "要多穿衣服！",
+    "记得多喝水",
+    "你要更自信！",
+    "早点休息哦",
+    "你很棒！",
+    "加油！",
+    "记得多运动！",
+    "我爱你",
+  ];
 
-  <script>
-    const goodBtn = document.getElementById('goodBtn');
-    const badBtn = document.getElementById('badBtn');
-    const buttonsDiv = document.querySelector('.buttons');
+  function randomColor() {
+    return `hsl(${Math.random() * 360}, 100%, 65%)`;
+  }
 
-    // 点击“不好” —— 每次点击都交换两个按钮的位置
-    badBtn.addEventListener('click', () => {
-      if (buttonsDiv.children.length >= 2) {
-        const [first, second] = buttonsDiv.children;
-        buttonsDiv.insertBefore(second, first);
-      }
-    });
+  function randomPosition() {
+    return {
+      x: Math.random() * (window.innerWidth - 250),
+      y: Math.random() * (window.innerHeight - 150)
+    };
+  }
 
-    // 点击“好” —— 小爱心 + 超大爱心
-    goodBtn.addEventListener('click', () => {
-      // 小爱心
-      for (let i = 0; i < 20; i++) {
-        setTimeout(() => createHeart(), i * 100);
-      }
-      // 超大爱心
-      createBigHeart();
-    });
+  let count = 0;
+  const maxPopups = 150; // 控制弹窗数量
 
-    function createHeart() {
-      const heart = document.createElement('div');
-      heart.className = 'heart';
-      heart.textContent = '❤';
+  function createPopup() {
+    if (count >= maxPopups) return;
 
-      // 随机大小
-      const size = Math.random() * 20 + 20; 
-      heart.style.fontSize = size + 'px';
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    const color = randomColor();
+    const pos = randomPosition();
+    popup.style.left = pos.x + "px";
+    popup.style.top = pos.y + "px";
 
-      // 随机水平位置
-      heart.style.left = Math.random() * (window.innerWidth - 30) + 'px';
+    // 标题栏
+    const titleBar = document.createElement("div");
+    titleBar.className = "titlebar";
 
-      // 随机颜色
-      const colors = ['#ff4d6d', '#ff6a88', '#ff99ac', '#ffb3c6'];
-      heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+    const title = document.createElement("div");
+    title.className = "title";
+    title.textContent = "提示";
 
-      document.body.appendChild(heart);
+    const buttons = document.createElement("div");
+    buttons.className = "window-buttons";
 
-      setTimeout(() => {
-        heart.remove();
-      }, 2000);
-    }
+    const minimize = document.createElement("span");
+    minimize.textContent = "-";
 
-    function createBigHeart() {
-      const bigHeart = document.createElement('div');
-      bigHeart.className = 'big-heart';
-      bigHeart.textContent = '❤';
-      document.body.appendChild(bigHeart);
+    const maximize = document.createElement("span");
+    maximize.textContent = "□";
 
-      setTimeout(() => {
-        bigHeart.remove();
-      }, 2000);
-    }
-  </script>
+    const close = document.createElement("span");
+    close.textContent = "×";
+    close.className = "close";
+    close.onclick = () => {
+      popup.style.opacity = "0";
+      popup.style.transform = "scale(0.9)";
+      setTimeout(() => popup.remove(), 300);
+    };
+
+    buttons.appendChild(minimize);
+    buttons.appendChild(maximize);
+    buttons.appendChild(close);
+
+    titleBar.appendChild(title);
+    titleBar.appendChild(buttons);
+
+    // 内容部分
+    const content = document.createElement("div");
+    content.className = "content";
+    content.style.backgroundColor = color;
+    content.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+    popup.appendChild(titleBar);
+    popup.appendChild(content);
+    document.body.appendChild(popup);
+
+    count++;
+    setTimeout(createPopup, 200);
+  }
+
+  createPopup();
+</script>
+
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>仿Windows彩色弹窗</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #f3f3f3;
+  }
+
+  .popup {
+    position: fixed;
+    width: 240px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+    overflow: hidden;
+    opacity: 0.95;
+    font-family: "Microsoft YaHei", sans-serif;
+    animation: fadeIn 0.4s ease;
+  }
+
+  /* 标题栏（上方白色条） */
+  .popup .titlebar {
+    background-color: #fff;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ccc;
+    padding: 0 5px;
+    cursor: move;
+  }
+
+  .popup .titlebar .title {
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  /* 右上角按钮组 */
+  .popup .titlebar .window-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .window-buttons span {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+
+  .window-buttons span:hover {
+    background-color: #e0e0e0;
+  }
+
+  .window-buttons .close:hover {
+    background-color: #e81123;
+    color: white;
+  }
+
+  /* 内容部分 */
+  .popup .content {
+    padding: 20px 15px;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  @keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.8);}
+    to {opacity: 1; transform: scale(1);}
+  }
+</style>
+</head>
+<body>
+
+<script>
+  const messages = [
+    "天天开心！",
+    "要多穿衣服！",
+    "记得多喝水",
+    "你要更自信！",
+    "早点休息哦",
+    "你很棒！",
+    "加油！",
+    "记得多运动！",
+    "我爱你",
+  ];
+
+  function randomColor() {
+    return `hsl(${Math.random() * 360}, 100%, 65%)`;
+  }
+
+  function randomPosition() {
+    return {
+      x: Math.random() * (window.innerWidth - 250),
+      y: Math.random() * (window.innerHeight - 150)
+    };
+  }
+
+  let count = 0;
+  const maxPopups = 150; // 控制弹窗数量
+
+  function createPopup() {
+    if (count >= maxPopups) return;
+
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    const color = randomColor();
+    const pos = randomPosition();
+    popup.style.left = pos.x + "px";
+    popup.style.top = pos.y + "px";
+
+    // 标题栏
+    const titleBar = document.createElement("div");
+    titleBar.className = "titlebar";
+
+    const title = document.createElement("div");
+    title.className = "title";
+    title.textContent = "提示";
+
+    const buttons = document.createElement("div");
+    buttons.className = "window-buttons";
+
+    const minimize = document.createElement("span");
+    minimize.textContent = "-";
+
+    const maximize = document.createElement("span");
+    maximize.textContent = "□";
+
+    const close = document.createElement("span");
+    close.textContent = "×";
+    close.className = "close";
+    close.onclick = () => {
+      popup.style.opacity = "0";
+      popup.style.transform = "scale(0.9)";
+      setTimeout(() => popup.remove(), 300);
+    };
+
+    buttons.appendChild(minimize);
+    buttons.appendChild(maximize);
+    buttons.appendChild(close);
+
+    titleBar.appendChild(title);
+    titleBar.appendChild(buttons);
+
+    // 内容部分
+    const content = document.createElement("div");
+    content.className = "content";
+    content.style.backgroundColor = color;
+    content.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+    popup.appendChild(titleBar);
+    popup.appendChild(content);
+    document.body.appendChild(popup);
+
+    count++;
+    setTimeout(createPopup, 200);
+  }
+
+  createPopup();
+</script>
+
+</body>
+</html>
+
